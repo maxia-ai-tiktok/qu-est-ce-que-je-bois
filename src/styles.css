@@ -96,6 +96,64 @@ input { font-family: inherit; }
 }
 .meta strong { color: var(--ink-2); font-weight: 500; }
 
+/* MAXIA.AI · TikTok signature in header */
+.presented-by {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 0;
+  transition: transform 0.2s ease;
+}
+.presented-by:hover { transform: translateY(-1px); }
+.presented-by:hover .maxia-tld { filter: brightness(1.15); }
+.presented-by:hover .presented-arrow { transform: translate(2px, -2px); }
+
+.presented-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.presented-arrow {
+  display: inline-block;
+  color: #00e5ff;
+  transition: transform 0.2s ease;
+}
+.live-pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #00e5ff;
+  box-shadow: 0 0 8px #00e5ff, 0 0 16px rgba(0, 229, 255, 0.6);
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+.maxia-wordmark {
+  font-family: "Inter", var(--sans);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  color: var(--ink);
+  line-height: 1;
+}
+.maxia-tld {
+  background: linear-gradient(135deg, #00e5ff 0%, #b026ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+}
+
 /* HERO */
 .hero {
   display: grid;
@@ -737,8 +795,9 @@ input { font-family: inherit; }
 /* Responsive */
 @media (max-width: 880px) {
   .app { padding: 32px 20px 80px; }
-  .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 16px; }
   .meta { text-align: left; }
+  .presented-by { align-items: flex-start; }
   .hero { grid-template-columns: 1fr; }
   .modal { grid-template-columns: 1fr; }
   .modal-img { aspect-ratio: 4/3; }
