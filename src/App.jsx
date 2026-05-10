@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Card from "./components/Card.jsx";
 import CocktailModal from "./components/CocktailModal.jsx";
+import Credits from "./components/Credits.jsx";
 import Header from "./components/Header.jsx";
 import Hero from "./components/Hero.jsx";
 import IngredientBar from "./components/IngredientBar.jsx";
@@ -169,8 +170,21 @@ export default function App() {
         )}
       </section>
 
+      <Credits />
+
       <footer className="footer">
         <div>Recettes via TheCocktailDB</div>
+        <div>
+          Conçu par{" "}
+          <a
+            className="footer-link"
+            href="https://www.tiktok.com/@maxia.ai"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            @maxia.ai
+          </a>
+        </div>
         <div>À consommer avec modération</div>
       </footer>
 
