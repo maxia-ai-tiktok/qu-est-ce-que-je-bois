@@ -14,15 +14,26 @@ export default function Credits() {
         prise. Rejoignez la communauté pour voir comment Claude Code et
         maxia.ai construisent ce genre de choses, en direct.
       </p>
-      <a
-        className="credits-cta"
-        href="https://www.tiktok.com/@maxia.ai"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span>Suivre @maxia.ai sur TikTok</span>
-        <span className="arrow">→</span>
-      </a>
+      <div className="credits-actions">
+        <a
+          className="credits-cta"
+          href="https://www.tiktok.com/@maxia.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Suivre @maxia.ai sur TikTok</span>
+          <span className="arrow">→</span>
+        </a>
+        <a
+          className="credits-video"
+          href="https://www.tiktok.com/@maxia.ai/video/7638684216900832534"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="play">▶</span>
+          La vidéo qui a tout déclenché
+        </a>
+      </div>
     </aside>
   );
 }
