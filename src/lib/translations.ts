@@ -1,5 +1,5 @@
 // Dictionnaire FR -> EN pour les ingrédients courants (l'API attend l'anglais)
-export const FR_TO_EN = {
+export const FR_TO_EN: Record<string, string> = {
   vodka: "Vodka",
   gin: "Gin",
   rhum: "Rum",
@@ -85,14 +85,14 @@ export const FR_TO_EN = {
   olive: "Olive",
 };
 
-export const SUGGESTIONS = [
+export const SUGGESTIONS: readonly string[] = [
   "Vodka", "Gin", "Rhum", "Tequila", "Whisky",
   "Citron vert", "Menthe", "Sucre",
   "Triple sec", "Champagne", "Soda", "Tonic",
   "Jus d'orange", "Jus d'ananas", "Cranberry",
 ];
 
-export const CATEGORY_FR = {
+export const CATEGORY_FR: Record<string, string> = {
   Cocktail: "Cocktail",
   "Ordinary Drink": "Classique",
   "Punch / Party Drink": "Punch",
@@ -105,7 +105,7 @@ export const CATEGORY_FR = {
   "Other / Unknown": "Autre",
 };
 
-export const GLASS_FR = {
+export const GLASS_FR: Record<string, string> = {
   "Highball glass": "Verre Highball",
   "Cocktail glass": "Verre à cocktail",
   "Old-fashioned glass": "Verre Old Fashioned",
@@ -137,7 +137,7 @@ export const GLASS_FR = {
   "Cordial glass": "Verre à digestif",
 };
 
-export const ALC_FR = {
+export const ALC_FR: Record<string, string> = {
   Alcoholic: "Alcoolisé",
   "Non alcoholic": "Sans alcool",
   "Optional alcohol": "Alcool optionnel",

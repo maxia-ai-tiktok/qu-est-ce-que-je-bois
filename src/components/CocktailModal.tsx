@@ -1,13 +1,26 @@
 import { useEffect, useMemo } from "react";
-import { ALC_FR, CATEGORY_FR, GLASS_FR } from "../lib/translations.js";
-import { formatDose, normalize, splitSteps } from "../lib/utils.js";
+import { ALC_FR, CATEGORY_FR, GLASS_FR } from "../lib/translations.ts";
+import type { CocktailDetail, Ingredient } from "../lib/types.ts";
+import { formatDose, normalize, splitSteps } from "../lib/utils.ts";
+
+interface CocktailModalProps {
+  cocktail: CocktailDetail;
+  onClose: () => void;
+  userIngredients: Ingredient[];
+  frInstructions?: string | null;
+}
+
+interface CocktailItem {
+  name: string;
+  dose: string;
+}
 
 export default function CocktailModal({
   cocktail,
   onClose,
   userIngredients,
   frInstructions,
-}) {
+}: CocktailModalProps) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -16,20 +29,23 @@ export default function CocktailModal({
   }, []);
 
   useEffect(() => {
-    const onKey = (e) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const items = useMemo(() => {
-    const out = [];
+  const items: CocktailItem[] = useMemo(() => {
+    const out: CocktailItem[] = [];
     for (let i = 1; i <= 15; i++) {
       const name = cocktail[`strIngredient${i}`];
       const dose = cocktail[`strMeasure${i}`];
-      if (name && name.trim()) {
-        out.push({ name: name.trim(), dose: dose ? dose.trim() : "" });
+      if (typeof name === "string" && name.trim()) {
+        out.push({
+          name: name.trim(),
+          dose: typeof dose === "string" ? dose.trim() : "",
+        });
       }
     }
     return out;
@@ -41,12 +57,23 @@ export default function CocktailModal({
   );
 
   const steps = splitSteps(
-    frInstructions || cocktail.strInstructionsFR || cocktail.strInstructions,
+    frInstructions ??
+      (cocktail.strInstructionsFR as string | null | undefined) ??
+      (cocktail.strInstructions as string | null | undefined),
   );
 
-  const category = CATEGORY_FR[cocktail.strCategory] || cocktail.strCategory;
-  const glass = GLASS_FR[cocktail.strGlass] || cocktail.strGlass;
-  const alcoholic = ALC_FR[cocktail.strAlcoholic] || cocktail.strAlcoholic;
+  const category =
+    (cocktail.strCategory && CATEGORY_FR[cocktail.strCategory]) ||
+    cocktail.strCategory ||
+    "";
+  const glass =
+    (cocktail.strGlass && GLASS_FR[cocktail.strGlass]) ||
+    cocktail.strGlass ||
+    "";
+  const alcoholic =
+    (cocktail.strAlcoholic && ALC_FR[cocktail.strAlcoholic]) ||
+    cocktail.strAlcoholic ||
+    "";
 
   return (
     <div className="modal-backdrop" onClick={onClose}>

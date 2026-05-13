@@ -1,4 +1,11 @@
-export default function Card({ cocktail, index }) {
+import type { CocktailWithMatch } from "../lib/types.ts";
+
+interface CardProps {
+  cocktail: CocktailWithMatch & { onClick: () => void };
+  index: number;
+}
+
+export default function Card({ cocktail, index }: CardProps) {
   return (
     <button className="card" onClick={cocktail.onClick}>
       <div className="thumb">

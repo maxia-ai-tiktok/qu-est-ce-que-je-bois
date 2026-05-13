@@ -1,29 +1,35 @@
 import { useState } from "react";
-import Card from "./components/Card.jsx";
-import CocktailModal from "./components/CocktailModal.jsx";
-import Credits from "./components/Credits.jsx";
-import Header from "./components/Header.jsx";
-import Hero from "./components/Hero.jsx";
-import IngredientBar from "./components/IngredientBar.jsx";
+import Card from "./components/Card.tsx";
+import CocktailModal from "./components/CocktailModal.tsx";
+import Credits from "./components/Credits.tsx";
+import Header from "./components/Header.tsx";
+import Hero from "./components/Hero.tsx";
+import IngredientBar from "./components/IngredientBar.tsx";
 import {
   fetchCocktailDetails,
   fetchCocktailsByIngredient,
-} from "./lib/api.js";
+} from "./lib/api.ts";
+import type {
+  CocktailDetail,
+  CocktailWithMatch,
+  Ingredient,
+} from "./lib/types.ts";
 
 export default function App() {
-  const [ingredients, setIngredients] = useState([]);
-  const [cocktails, setCocktails] = useState(null);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [cocktails, setCocktails] = useState<CocktailWithMatch[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [selectedId, setSelectedId] = useState(null);
-  const [selectedDetails, setSelectedDetails] = useState(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedDetails, setSelectedDetails] =
+    useState<CocktailDetail | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
-  function addIngredient(ing) {
+  function addIngredient(ing: Ingredient) {
     setIngredients((prev) => [...prev, ing]);
   }
-  function removeIngredient(index) {
+  function removeIngredient(index: number) {
     setIngredients((prev) => prev.filter((_, i) => i !== index));
   }
   function clearAll() {
@@ -43,13 +49,14 @@ export default function App() {
         ingredients.map((i) => fetchCocktailsByIngredient(i.apiName)),
       );
 
-      const tally = new Map();
+      const tally = new Map<string, CocktailWithMatch>();
       results.forEach((list, idx) => {
         list.forEach((d) => {
-          if (!tally.has(d.idDrink)) {
-            tally.set(d.idDrink, { ...d, matchCount: 0, matched: new Set() });
+          let entry = tally.get(d.idDrink);
+          if (!entry) {
+            entry = { ...d, matchCount: 0, matched: new Set<number>() };
+            tally.set(d.idDrink, entry);
           }
-          const entry = tally.get(d.idDrink);
           if (!entry.matched.has(idx)) {
             entry.matched.add(idx);
             entry.matchCount += 1;
@@ -74,7 +81,7 @@ export default function App() {
     }
   }
 
-  async function openCocktail(id) {
+  async function openCocktail(id: string) {
     setSelectedId(id);
     setLoadingDetails(true);
     setSelectedDetails(null);

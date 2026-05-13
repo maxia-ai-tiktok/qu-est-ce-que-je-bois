@@ -1,6 +1,16 @@
 import { useCallback, useRef, useState } from "react";
-import { SUGGESTIONS } from "../lib/translations.js";
-import { frenchToApiName, normalize } from "../lib/utils.js";
+import { SUGGESTIONS } from "../lib/translations.ts";
+import type { Ingredient } from "../lib/types.ts";
+import { frenchToApiName, normalize } from "../lib/utils.ts";
+
+interface IngredientBarProps {
+  ingredients: Ingredient[];
+  addIngredient: (ing: Ingredient) => void;
+  removeIngredient: (index: number) => void;
+  clearAll: () => void;
+  onSearch: () => void;
+  isSearching: boolean;
+}
 
 export default function IngredientBar({
   ingredients,
@@ -9,12 +19,12 @@ export default function IngredientBar({
   clearAll,
   onSearch,
   isSearching,
-}) {
+}: IngredientBarProps) {
   const [draft, setDraft] = useState("");
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const tryAdd = useCallback(
-    (value) => {
+    (value: string) => {
       const v = value.trim();
       if (!v) return;
       const exists = ingredients.some(
@@ -27,7 +37,7 @@ export default function IngredientBar({
     [ingredients, addIngredient],
   );
 
-  function onKeyDown(e) {
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       tryAdd(draft);
