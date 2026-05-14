@@ -13,10 +13,9 @@ export interface CocktailSummary {
 }
 
 // Enriched with our local matching count after fusing multiple ingredient
-// queries. `matched` tracks which user-ingredient indices contributed.
+// queries.
 export interface CocktailWithMatch extends CocktailSummary {
   matchCount: number;
-  matched: Set<number>;
 }
 
 // Full cocktail returned by lookup.php?i=<id>. The API returns null for

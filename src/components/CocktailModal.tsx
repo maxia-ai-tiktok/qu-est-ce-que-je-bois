@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { ALC_FR, CATEGORY_FR, GLASS_FR } from "../lib/translations.ts";
 import type { CocktailDetail, Ingredient } from "../lib/types.ts";
 import { formatDose, normalize, splitSteps } from "../lib/utils.ts";
@@ -7,7 +7,6 @@ interface CocktailModalProps {
   cocktail: CocktailDetail;
   onClose: () => void;
   userIngredients: Ingredient[];
-  frInstructions?: string | null;
 }
 
 interface CocktailItem {
@@ -19,12 +18,22 @@ export default function CocktailModal({
   cocktail,
   onClose,
   userIngredients,
-  frInstructions,
 }: CocktailModalProps) {
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
+    // Bloque le scroll body pendant que le modal est ouvert
     document.body.style.overflow = "hidden";
+    // Stocke l'élément focusé avant l'ouverture, restaure à la fermeture
+    previouslyFocused.current =
+      typeof document !== "undefined"
+        ? (document.activeElement as HTMLElement | null)
+        : null;
+    closeBtnRef.current?.focus();
     return () => {
       document.body.style.overflow = "";
+      previouslyFocused.current?.focus?.();
     };
   }, []);
 
@@ -57,8 +66,7 @@ export default function CocktailModal({
   );
 
   const steps = splitSteps(
-    frInstructions ??
-      (cocktail.strInstructionsFR as string | null | undefined) ??
+    (cocktail.strInstructionsFR as string | null | undefined) ??
       (cocktail.strInstructions as string | null | undefined),
   );
 
@@ -76,10 +84,18 @@ export default function CocktailModal({
     "";
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div
+      className="modal-backdrop"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cocktail-modal-title"
+    >
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-img">
-          <img src={cocktail.strDrinkThumb} alt={cocktail.strDrink} />
+          {cocktail.strDrinkThumb ? (
+            <img src={cocktail.strDrinkThumb} alt={cocktail.strDrink} />
+          ) : null}
           <div className="corner">№ {cocktail.idDrink}</div>
         </div>
 
@@ -89,15 +105,16 @@ export default function CocktailModal({
               {category} · {alcoholic}
             </div>
             <button
+              ref={closeBtnRef}
               className="modal-close"
               onClick={onClose}
-              aria-label="Fermer"
+              aria-label="Fermer la recette"
             >
               ×
             </button>
           </div>
 
-          <h2>{cocktail.strDrink}</h2>
+          <h2 id="cocktail-modal-title">{cocktail.strDrink}</h2>
           <div className="sub">Servi en {glass?.toLowerCase()}</div>
 
           <div className="section-h">

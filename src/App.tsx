@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Card from "./components/Card.tsx";
 import CocktailModal from "./components/CocktailModal.tsx";
 import Credits from "./components/Credits.tsx";
@@ -26,6 +26,11 @@ export default function App() {
     useState<CocktailDetail | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
+  // Garde-fou contre les races : on incrémente un id de requête à chaque
+  // appel et on ignore les réponses qui ne correspondent plus.
+  const searchReqId = useRef(0);
+  const detailsController = useRef<AbortController | null>(null);
+
   function addIngredient(ing: Ingredient) {
     setIngredients((prev) => [...prev, ing]);
   }
@@ -40,6 +45,7 @@ export default function App() {
 
   async function search() {
     if (!ingredients.length) return;
+    const reqId = ++searchReqId.current;
     setIsSearching(true);
     setError(null);
     setCocktails(null);
@@ -49,54 +55,84 @@ export default function App() {
         ingredients.map((i) => fetchCocktailsByIngredient(i.apiName)),
       );
 
-      const tally = new Map<string, CocktailWithMatch>();
+      // Si l'utilisateur a relancé une recherche entre-temps, on ignore
+      // ce résultat stale pour éviter l'écrasement de la nouvelle.
+      if (reqId !== searchReqId.current) return;
+
+      // Compteur de matches par cocktail (par ingrédient unique).
+      // Pas besoin d'un Set : on dédoublonne en passant par un objet
+      // par ingrédient.
+      const tally = new Map<
+        string,
+        { drink: CocktailWithMatch; ingredientHits: Set<number> }
+      >();
       results.forEach((list, idx) => {
         list.forEach((d) => {
           let entry = tally.get(d.idDrink);
           if (!entry) {
-            entry = { ...d, matchCount: 0, matched: new Set<number>() };
+            entry = {
+              drink: { ...d, matchCount: 0 },
+              ingredientHits: new Set<number>(),
+            };
             tally.set(d.idDrink, entry);
           }
-          if (!entry.matched.has(idx)) {
-            entry.matched.add(idx);
-            entry.matchCount += 1;
+          if (!entry.ingredientHits.has(idx)) {
+            entry.ingredientHits.add(idx);
+            entry.drink.matchCount += 1;
           }
         });
       });
 
-      const all = [...tally.values()].sort(
-        (a, b) =>
-          b.matchCount - a.matchCount ||
-          a.strDrink.localeCompare(b.strDrink),
-      );
+      const all = [...tally.values()]
+        .map((e) => e.drink)
+        .sort(
+          (a, b) =>
+            b.matchCount - a.matchCount ||
+            a.strDrink.localeCompare(b.strDrink),
+        );
 
       setCocktails(all);
     } catch (e) {
+      if (reqId !== searchReqId.current) return;
       console.error(e);
       setError(
         "La recherche a échoué. Vérifiez votre connexion et réessayez.",
       );
     } finally {
-      setIsSearching(false);
+      if (reqId === searchReqId.current) setIsSearching(false);
     }
   }
 
   async function openCocktail(id: string) {
+    // Annule la requête précédente si on clique vite sur une autre carte
+    detailsController.current?.abort();
+    const controller = new AbortController();
+    detailsController.current = controller;
+
     setSelectedId(id);
     setLoadingDetails(true);
     setSelectedDetails(null);
     try {
-      const d = await fetchCocktailDetails(id);
+      const d = await fetchCocktailDetails(id, controller.signal);
+      if (controller.signal.aborted) return;
       setSelectedDetails(d);
     } catch (e) {
+      if (controller.signal.aborted) return;
       console.error(e);
+      setError("Impossible de charger la recette. Réessayez.");
+      setSelectedId(null);
     } finally {
-      setLoadingDetails(false);
+      if (detailsController.current === controller) {
+        setLoadingDetails(false);
+      }
     }
   }
   function closeCocktail() {
+    detailsController.current?.abort();
+    detailsController.current = null;
     setSelectedId(null);
     setSelectedDetails(null);
+    setLoadingDetails(false);
   }
 
   return (

@@ -79,9 +79,9 @@ export default function IngredientBar({
           placeholder={
             ingredients.length ? "Ajouter…" : "Ex. gin, citron vert, menthe…"
           }
+          aria-label="Ajouter un ingrédient"
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKeyDown}
-          onBlur={() => tryAdd(draft)}
         />
       </div>
 
